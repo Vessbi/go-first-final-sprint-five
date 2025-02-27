@@ -11,28 +11,27 @@ import (
 )
 
 var (
-	StepLength    = 0.65  // длина шага в метрах
-	distance      float64 //пройденная дистанция
-	ErrFormatTime = errors.New("Ошибка преобразования строки в формат времени")
-	ErrConvToInt  = errors.New("ошибка преобразования в целое число")
-	ErrLenSlice   = errors.New("len(word) < 2")
+	StepLength = 0.65  // длина шага в метрах
+	distance   float64 //пройденная дистанция
+
 )
 
 func parsePackage(data string) (int, time.Duration, error) {
 	// Строка в слайс строк
 	word := strings.Split(data, ",")
 	if len(word) < 2 {
-		return 0, 0, ErrLenSlice
+		err := errors.New("len(word)!=2")
+		return 0, 0, fmt.Errorf("slice length error: %w", err)
 	}
 	//преобразование строки в целое число
 	step, err := strconv.Atoi(word[0])
 	if err != nil {
-		return 0, 0, ErrConvToInt
+		return 0, 0, fmt.Errorf("conversion error to integer: %w", err)
 	}
 	//Парсим время
 	duration, err := time.ParseDuration(word[1])
 	if err != nil {
-		return 0, 0, ErrFormatTime
+		return 0, 0, fmt.Errorf("conversion to time format error: %w", err)
 	}
 	return step, duration, nil
 }
@@ -47,8 +46,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	//Парсим data через parsePackage
 	step, t, err := parsePackage(data)
 	if err != nil {
-		err = fmt.Errorf("ошибка в ходе выполнения программы: %v", err)
-		return fmt.Sprintln(err)
+		return ""
 	}
 	if step <= 0 {
 		return ""

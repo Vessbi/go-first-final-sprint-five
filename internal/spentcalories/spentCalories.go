@@ -17,28 +17,23 @@ const (
 	cmInM     = 100   // количество сантиметров в метре.
 )
 
-var (
-	ErrFormatTime = errors.New("Ошибка преобразования строки в формат времени")
-	ErrConvToInt  = errors.New("ошибка преобразования в целое число")
-	ErrLenSlice   = errors.New("len(word) < 3")
-)
-
 func parseTraining(data string) (int, string, time.Duration, error) {
 	// Парсинг строки
 	words := strings.Split(data, ",")
 	if len(words) != 3 {
-		return 0, "", 0, ErrLenSlice
+		err := errors.New("len(word)!=3")
+		return 0, "", 0, fmt.Errorf("slice length error: %w", err)
 	}
 	step, err := strconv.Atoi(words[0])
 	if err != nil {
-		return 0, "", 0, ErrConvToInt
+		return 0, "", 0, fmt.Errorf("conversion error to integer: %w", err)
 	}
 	//вид активности activity
 	activity := words[1]
 
 	t, err := time.ParseDuration(words[2])
 	if err != nil {
-		return 0, "", 0, ErrFormatTime
+		return 0, "", 0, fmt.Errorf("conversion to time format error: %w", err)
 	}
 	return step, activity, t, nil
 }
@@ -78,8 +73,7 @@ func meanSpeed(steps int, duration time.Duration) float64 {
 func TrainingInfo(data string, weight, height float64) string {
 	step, activity, t, err := parseTraining(data)
 	if err != nil {
-		err = fmt.Errorf("ошибка в ходе выполнения программы: %v", err)
-		return fmt.Sprintln(err)
+		return ""
 	}
 	timeTraining := time.Duration.Hours(t)
 	dist := distance(step)
